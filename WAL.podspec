@@ -12,14 +12,15 @@ Pod::Spec.new do |s|
   s.summary      = "WebRTC Abstraction Layer"
   s.description  = "Easy use of WebRTC to build a VoIP app"
   s.homepage     = "https://kurzdigital.com"
-  s.license      = "BSD"
+  s.license = { :type => 'BSD'} 
   s.author             = { "Christian Braun" => "christian.braun@kurzdigital.com" }
   s.social_media_url   = "http://twitter.com/NorbiBraun"
   s.platform     = :ios, "10.0"
   s.source       = { :git => "https://git.kurzdigital.com/cbr/WAL", :tag => s.version.to_s}
 
-  s.source_files  = "WAL"
+  s.source_files = "WAL"
   s.requires_arc = true
 
+  swift_version = 4.1
   s.dependency "WebRTC"
 end
