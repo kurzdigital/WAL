@@ -22,5 +22,5 @@ Pod::Spec.new do |s|
   s.requires_arc = true
 
   s.swift_version = "4.1"
-  s.dependency "WebRTC"
+  s.dependency "WebRTC", -> "63.11"
 end
