@@ -7,11 +7,7 @@
 //
 
 import Foundation
-import WebRTC
 
 class WebRTCConnection {
-    let config: Config
-    init(with config: Config) {
-        self.config = config
-    }
+    
 }

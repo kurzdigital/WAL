@@ -7,14 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		6F4F1473DBC874351184F368 /* Pods_WAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C7C4CFAEC18E6EBD5A471125 /* Pods_WAL.framework */; };
-		950A4B19212B1CBE00F0208B /* WebRTCConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 950A4B18212B1CBE00F0208B /* WebRTCConnection.swift */; };
-		950A4B1C212B1E3400F0208B /* WebRTCConnectionConfig+TurnServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 950A4B1B212B1E3400F0208B /* WebRTCConnectionConfig+TurnServer.swift */; };
-		957D9F45212B1B7B008A7546 /* WAL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 957D9F44212B1B7B008A7546 /* WAL.swift */; };
+		95CC41BA212B24B60091038A /* WebRTCConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95CC41B9212B24B60091038A /* WebRTCConnection.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		957D9F3F212B1B7B008A7546 /* CopyFiles */ = {
+		95175EC3212B247100DD9B23 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "include/$(PRODUCT_NAME)";
@@ -26,91 +23,55 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		2CEBFA1A22588758CF65B52E /* Pods-WAL.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WAL.debug.xcconfig"; path = "Pods/Target Support Files/Pods-WAL/Pods-WAL.debug.xcconfig"; sourceTree = "<group>"; };
-		3FA1089DA9A882E43354A3DA /* Pods-WAL.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WAL.release.xcconfig"; path = "Pods/Target Support Files/Pods-WAL/Pods-WAL.release.xcconfig"; sourceTree = "<group>"; };
-		950A4B18212B1CBE00F0208B /* WebRTCConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebRTCConnection.swift; sourceTree = "<group>"; };
-		950A4B1B212B1E3400F0208B /* WebRTCConnectionConfig+TurnServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WebRTCConnectionConfig+TurnServer.swift"; sourceTree = "<group>"; };
-		957D9F41212B1B7B008A7546 /* libWAL.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libWAL.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		957D9F44212B1B7B008A7546 /* WAL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WAL.swift; sourceTree = "<group>"; };
-		C7C4CFAEC18E6EBD5A471125 /* Pods_WAL.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WAL.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		95175EC5212B247100DD9B23 /* libWAL.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libWAL.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		95CC41B9212B24B60091038A /* WebRTCConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WebRTCConnection.swift; path = WAL/WebRTCConnection.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		957D9F3E212B1B7B008A7546 /* Frameworks */ = {
+		95175EC2212B247100DD9B23 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6F4F1473DBC874351184F368 /* Pods_WAL.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		5277A8A25A91540C9F8EAFD9 /* Frameworks */ = {
+		95175EBC212B247100DD9B23 = {
 			isa = PBXGroup;
 			children = (
-				C7C4CFAEC18E6EBD5A471125 /* Pods_WAL.framework */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		950A4B1A212B1E0F00F0208B /* Entities */ = {
-			isa = PBXGroup;
-			children = (
-				950A4B1B212B1E3400F0208B /* WebRTCConnectionConfig+TurnServer.swift */,
-			);
-			path = Entities;
-			sourceTree = "<group>";
-		};
-		957D9F38212B1B7B008A7546 = {
-			isa = PBXGroup;
-			children = (
-				957D9F43212B1B7B008A7546 /* WAL */,
-				957D9F42212B1B7B008A7546 /* Products */,
-				BFEA0D88AC04B78F537E6C77 /* Pods */,
-				5277A8A25A91540C9F8EAFD9 /* Frameworks */,
+				95175EC7212B247100DD9B23 /* WAL */,
+				95175EC6212B247100DD9B23 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		957D9F42212B1B7B008A7546 /* Products */ = {
+		95175EC6212B247100DD9B23 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				957D9F41212B1B7B008A7546 /* libWAL.a */,
+				95175EC5212B247100DD9B23 /* libWAL.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		957D9F43212B1B7B008A7546 /* WAL */ = {
+		95175EC7212B247100DD9B23 /* WAL */ = {
 			isa = PBXGroup;
 			children = (
-				950A4B1A212B1E0F00F0208B /* Entities */,
-				957D9F44212B1B7B008A7546 /* WAL.swift */,
-				950A4B18212B1CBE00F0208B /* WebRTCConnection.swift */,
+				95CC41B9212B24B60091038A /* WebRTCConnection.swift */,
 			);
-			path = WAL;
-			sourceTree = "<group>";
-		};
-		BFEA0D88AC04B78F537E6C77 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				2CEBFA1A22588758CF65B52E /* Pods-WAL.debug.xcconfig */,
-				3FA1089DA9A882E43354A3DA /* Pods-WAL.release.xcconfig */,
-			);
-			name = Pods;
+			name = WAL;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		957D9F40212B1B7B008A7546 /* WAL */ = {
+		95175EC4212B247100DD9B23 /* WAL */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 957D9F48212B1B7B008A7546 /* Build configuration list for PBXNativeTarget "WAL" */;
+			buildConfigurationList = 95175ECC212B247100DD9B23 /* Build configuration list for PBXNativeTarget "WAL" */;
 			buildPhases = (
-				DE20808D184385CB020F6DB5 /* [CP] Check Pods Manifest.lock */,
-				957D9F3D212B1B7B008A7546 /* Sources */,
-				957D9F3E212B1B7B008A7546 /* Frameworks */,
-				957D9F3F212B1B7B008A7546 /* CopyFiles */,
+				95175EC1212B247100DD9B23 /* Sources */,
+				95175EC2212B247100DD9B23 /* Frameworks */,
+				95175EC3212B247100DD9B23 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -118,77 +79,54 @@
 			);
 			name = WAL;
 			productName = WAL;
-			productReference = 957D9F41212B1B7B008A7546 /* libWAL.a */;
+			productReference = 95175EC5212B247100DD9B23 /* libWAL.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		957D9F39212B1B7B008A7546 /* Project object */ = {
+		95175EBD212B247100DD9B23 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0940;
 				LastUpgradeCheck = 0940;
 				ORGANIZATIONNAME = "KURZ Digital Solutions GmbH & Co. KG";
 				TargetAttributes = {
-					957D9F40212B1B7B008A7546 = {
+					95175EC4212B247100DD9B23 = {
 						CreatedOnToolsVersion = 9.4.1;
 					};
 				};
 			};
-			buildConfigurationList = 957D9F3C212B1B7B008A7546 /* Build configuration list for PBXProject "WAL" */;
+			buildConfigurationList = 95175EC0212B247100DD9B23 /* Build configuration list for PBXProject "WAL" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 			);
-			mainGroup = 957D9F38212B1B7B008A7546;
-			productRefGroup = 957D9F42212B1B7B008A7546 /* Products */;
+			mainGroup = 95175EBC212B247100DD9B23;
+			productRefGroup = 95175EC6212B247100DD9B23 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				957D9F40212B1B7B008A7546 /* WAL */,
+				95175EC4212B247100DD9B23 /* WAL */,
 			);
 		};
 /* End PBXProject section */
 
-/* Begin PBXShellScriptBuildPhase section */
-		DE20808D184385CB020F6DB5 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-WAL-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-/* End PBXShellScriptBuildPhase section */
-
 /* Begin PBXSourcesBuildPhase section */
-		957D9F3D212B1B7B008A7546 /* Sources */ = {
+		95175EC1212B247100DD9B23 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				950A4B1C212B1E3400F0208B /* WebRTCConnectionConfig+TurnServer.swift in Sources */,
-				950A4B19212B1CBE00F0208B /* WebRTCConnection.swift in Sources */,
-				957D9F45212B1B7B008A7546 /* WAL.swift in Sources */,
+				95CC41BA212B24B60091038A /* WebRTCConnection.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		957D9F46212B1B7B008A7546 /* Debug */ = {
+		95175ECA212B247100DD9B23 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -248,7 +186,7 @@
 			};
 			name = Debug;
 		};
-		957D9F47212B1B7B008A7546 /* Release */ = {
+		95175ECB212B247100DD9B23 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -302,13 +240,12 @@
 			};
 			name = Release;
 		};
-		957D9F49212B1B7B008A7546 /* Debug */ = {
+		95175ECD212B247100DD9B23 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 2CEBFA1A22588758CF65B52E /* Pods-WAL.debug.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 25MXZ8DDDM;
-				OTHER_LDFLAGS = "$(inherited)";
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 4.0;
@@ -316,13 +253,12 @@
 			};
 			name = Debug;
 		};
-		957D9F4A212B1B7B008A7546 /* Release */ = {
+		95175ECE212B247100DD9B23 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 3FA1089DA9A882E43354A3DA /* Pods-WAL.release.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 25MXZ8DDDM;
-				OTHER_LDFLAGS = "$(inherited)";
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 4.0;
@@ -333,25 +269,25 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		957D9F3C212B1B7B008A7546 /* Build configuration list for PBXProject "WAL" */ = {
+		95175EC0212B247100DD9B23 /* Build configuration list for PBXProject "WAL" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				957D9F46212B1B7B008A7546 /* Debug */,
-				957D9F47212B1B7B008A7546 /* Release */,
+				95175ECA212B247100DD9B23 /* Debug */,
+				95175ECB212B247100DD9B23 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		957D9F48212B1B7B008A7546 /* Build configuration list for PBXNativeTarget "WAL" */ = {
+		95175ECC212B247100DD9B23 /* Build configuration list for PBXNativeTarget "WAL" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				957D9F49212B1B7B008A7546 /* Debug */,
-				957D9F4A212B1B7B008A7546 /* Release */,
+				95175ECD212B247100DD9B23 /* Debug */,
+				95175ECE212B247100DD9B23 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = 957D9F39212B1B7B008A7546 /* Project object */;
+	rootObject = 95175EBD212B247100DD9B23 /* Project object */;
 }
