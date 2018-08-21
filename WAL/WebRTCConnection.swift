@@ -8,6 +8,15 @@
 
 import Foundation
 
-class WebRTCConnection {
-    
+public class WebRTCConnection {
+    let config: Config
+    fileprivate var spreedClient: SpreedClient?
+
+    public init(with config: Config) {
+        self.config = config
+    }
+
+    public func connect() {
+        spreedClient = SpreedClient(with: config.signalingServerUrl)
+    }
 }

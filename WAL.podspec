@@ -18,9 +18,10 @@ Pod::Spec.new do |s|
   s.platform     = :ios, "10.0"
   s.source       = { :git => "https://git.kurzdigital.com/cbr/WAL", :tag => s.version.to_s}
 
-  s.source_files = "WAL"
+  s.source_files = "WAL/**/*"
   s.requires_arc = true
 
   s.swift_version = "4.1"
-  s.dependency "WebRTC", -> "63.11"
+  s.dependency "WebRTC", "~> 63.11"
+  s.dependency "SwiftWebSocket"
 end
