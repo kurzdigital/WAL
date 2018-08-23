@@ -6,35 +6,35 @@
 //
 
 import Foundation
-import SwiftWebSocket
+import Starscream
 
-class SpreedClient {
+class SpreedClient: WebSocketDelegate {
 
     fileprivate let ws: WebSocket
 
     init(with url: String) {
-        ws = WebSocket(url)
-        setupWebSocketEventHandlers()
+        ws = WebSocket(url: URL(string: "ws://localhost:8080/ws")!)
+        ws.delegate = self
     }
 
-    func setupWebSocketEventHandlers() {
-        ws.event.open = {
-            print("WebSocket opened")
-        }
+    func connect() {
+        ws.connect()
+    }
 
-        ws.event.close = {_, _, _ in
-            print("WebSocket closed")
-        }
+    // MARK: - WebSocketDelegate
+    func websocketDidConnect(socket: WebSocketClient) {
+        print("Websocket connected")
+    }
 
-        ws.event.error = {error in
-            print("Error: \(error)")
-        }
+    func websocketDidDisconnect(socket: WebSocketClient, error: Error?) {
+        print("Websocket disconnected")
+    }
 
-        ws.event.message = { message in
-            guard let payload = message as? String else {
-                fatalError("Only expect messages as string from Signaling Server")
-            }
-            print(payload)
-        }
+    func websocketDidReceiveMessage(socket: WebSocketClient, text: String) {
+        print("Websocket message \(text)")
+    }
+
+    func websocketDidReceiveData(socket: WebSocketClient, data: Data) {
+        print("Websocket data")
     }
 }

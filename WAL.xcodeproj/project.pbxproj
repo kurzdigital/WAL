@@ -6,12 +6,6 @@
 	objectVersion = 50;
 	objects = {
 
-/* Begin PBXBuildFile section */
-		95450E29212BDD560063008C /* SpreedClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95450E28212BDD560063008C /* SpreedClient.swift */; };
-		95450E2E212BDDE60063008C /* WebRTCConnection+Config+TurnServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95450E2D212BDDE60063008C /* WebRTCConnection+Config+TurnServer.swift */; };
-		95CC41BA212B24B60091038A /* WebRTCConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95CC41B9212B24B60091038A /* WebRTCConnection.swift */; };
-/* End PBXBuildFile section */
-
 /* Begin PBXCopyFilesBuildPhase section */
 		95175EC3212B247100DD9B23 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -26,9 +20,7 @@
 
 /* Begin PBXFileReference section */
 		95175EC5212B247100DD9B23 /* libWAL.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libWAL.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		95450E28212BDD560063008C /* SpreedClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpreedClient.swift; sourceTree = "<group>"; };
-		95450E2D212BDDE60063008C /* WebRTCConnection+Config+TurnServer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "WebRTCConnection+Config+TurnServer.swift"; sourceTree = "<group>"; };
-		95CC41B9212B24B60091038A /* WebRTCConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WebRTCConnection.swift; path = WAL/WebRTCConnection.swift; sourceTree = SOURCE_ROOT; };
+		952D408A212BE8D10016C7B1 /* WAL */ = {isa = PBXFileReference; lastKnownFileType = folder; path = WAL; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -45,8 +37,8 @@
 		95175EBC212B247100DD9B23 = {
 			isa = PBXGroup;
 			children = (
-				95175EC7212B247100DD9B23 /* WAL */,
 				95175EC6212B247100DD9B23 /* Products */,
+				952D408A212BE8D10016C7B1 /* WAL */,
 			);
 			sourceTree = "<group>";
 		};
@@ -56,34 +48,6 @@
 				95175EC5212B247100DD9B23 /* libWAL.a */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		95175EC7212B247100DD9B23 /* WAL */ = {
-			isa = PBXGroup;
-			children = (
-				95450E2C212BDDC70063008C /* Entities */,
-				95450E25212BDD030063008C /* Signaling */,
-				95CC41B9212B24B60091038A /* WebRTCConnection.swift */,
-			);
-			name = WAL;
-			sourceTree = "<group>";
-		};
-		95450E25212BDD030063008C /* Signaling */ = {
-			isa = PBXGroup;
-			children = (
-				95450E28212BDD560063008C /* SpreedClient.swift */,
-			);
-			name = Signaling;
-			path = WAL/Signaling;
-			sourceTree = "<group>";
-		};
-		95450E2C212BDDC70063008C /* Entities */ = {
-			isa = PBXGroup;
-			children = (
-				95450E2D212BDDE60063008C /* WebRTCConnection+Config+TurnServer.swift */,
-			);
-			name = Entities;
-			path = WAL/Entities;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -143,9 +107,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				95450E2E212BDDE60063008C /* WebRTCConnection+Config+TurnServer.swift in Sources */,
-				95CC41BA212B24B60091038A /* WebRTCConnection.swift in Sources */,
-				95450E29212BDD560063008C /* SpreedClient.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

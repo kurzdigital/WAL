@@ -18,5 +18,6 @@ public class WebRTCConnection {
 
     public func connect() {
         spreedClient = SpreedClient(with: config.signalingServerUrl)
+        spreedClient?.connect()
     }
 }

@@ -23,5 +23,5 @@ Pod::Spec.new do |s|
 
   s.swift_version = "4.1"
   s.dependency "WebRTC", "~> 63.11"
-  s.dependency "SwiftWebSocket"
+  s.dependency "Starscream"
 end
