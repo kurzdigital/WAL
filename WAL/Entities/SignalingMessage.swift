@@ -45,30 +45,37 @@ struct MeSignalingMessage: SignalingMessage {
         case type = "Type"
         case token = "Token"
     }
+
+    init(token: String) {
+        self.token = token
+    }
 }
 
 struct HelloSignalingMessage: SignalingMessage {
     struct Hello: Codable {
         let version: String
         let userAgent: String
-        let name: String
-        let type: String
+        let roomName: String
+        let type = ""
 
         enum CodingKeys: String, CodingKey {
             case version = "Version"
             case userAgent = "Ua"
-            case name = "Name"
+            case roomName = "Name"
             case type = "Type"
         }
     }
 
     var type = SignalingMessageType.hello
-
     var hello: Hello
 
     enum CodingKeys: String, CodingKey {
         case type = "Type"
         case hello = "Hello"
+    }
+
+    init(hello: Hello) {
+        self.hello = hello
     }
 }
 

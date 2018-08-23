@@ -16,8 +16,22 @@ public class WebRTCConnection {
         self.config = config
     }
 
-    public func connect() {
-        spreedClient = SpreedClient(with: config.signalingServerUrl)
+    public func connect(roomName: String) {
+        spreedClient = SpreedClient(
+            with: config.signalingServerUrl,
+            roomName: roomName,
+            delegate: self)
+    }
+}
+
+extension WebRTCConnection: SpreedClientDelegate {
+    // MARK: - SpreedClientDelegate
+    func isReadyToConnectToRoom(_ sender: SpreedClient) {
+        print("SprintClientDelegate")
         spreedClient?.connect()
+    }
+
+    func spreedClient(_ sender: SpreedClient, userDidJoin userId: String) {
+        print(userId)
     }
 }

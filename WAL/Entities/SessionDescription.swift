@@ -17,6 +17,18 @@ struct SessionDescription: Codable {
     let type: SdpType
     let sdp: String
 
+    init(from rtcSessionDescription: RTCSessionDescription) {
+        self.sdp = rtcSessionDescription.sdp
+
+        switch rtcSessionDescription.type {
+        case .offer:
+            self.type = .offer
+        case .prAnswer:
+            self.type = .pranswer
+        case .answer:
+            self.type = .answer
+        }
+    }
     func toRTCSessionDescription() -> RTCSessionDescription {
         let rtcSdpType: RTCSdpType
 
