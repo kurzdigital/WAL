@@ -9,8 +9,10 @@ import Foundation
 
 struct Carrier <A: Codable>: Codable {
     let data: A
+    let from: String
 
     enum CodingKeys: String, CodingKey {
         case data = "Data"
+        case from = "From"
     }
 }

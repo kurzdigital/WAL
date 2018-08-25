@@ -9,14 +9,34 @@
 import Foundation
 import WebRTC
 
+fileprivate let audioTrackId = "WaleAS01"
+fileprivate let videoTrackId = "WaleVS01"
+fileprivate let mediaStreamId = "WaleMS"
+
+public protocol WebRTCConnectionDelegate: class {
+    func webRTCConnection(_ sender: WebRTCConnection, didReceiveLocalVideoTrack localTrack: RTCVideoTrack)
+    func webRTCConnection(_ sender: WebRTCConnection, didReceiveRemoteVideoTrack remoteTrack: RTCVideoTrack)
+}
+
 public class WebRTCConnection: NSObject {
     let config: Config
+    fileprivate(set) var localCapturer: RTCCameraVideoCapturer?
+
+
+    fileprivate weak var delegate: WebRTCConnectionDelegate?
     fileprivate var spreedClient: SpreedClient?
     fileprivate let peerConnectionFactory = RTCPeerConnectionFactory()
     fileprivate var peerConnection: RTCPeerConnection?
+    fileprivate var partnerId: String?
 
-    public init(with config: Config) {
+    fileprivate let mandatorySdpConstraints = RTCMediaConstraints(
+        mandatoryConstraints:["OfferToReceiveAudio": "true",
+                              "OfferToReceiveVideo": "true"],
+        optionalConstraints: nil)
+
+    public init(with config: Config, delegate: WebRTCConnectionDelegate) {
         self.config = config
+        self.delegate = delegate
     }
 
     public func connect(roomName: String) {
@@ -32,6 +52,8 @@ public class WebRTCConnection: NSObject {
                     mandatoryConstraints: nil,
                     optionalConstraints: nil),
                 delegate: self)
+
+        createMediaTracks()
     }
 
     fileprivate func createMediaTracks() {
@@ -41,9 +63,25 @@ public class WebRTCConnection: NSObject {
                 optionalConstraints: nil))
         let audioTrack = peerConnectionFactory.audioTrack(
             with: audioSource,
-            trackId: "WaleAS01")
+            trackId: audioTrackId)
+        let videoSource = peerConnectionFactory.videoSource()
+        let videoTrack = peerConnectionFactory.videoTrack(
+            with: videoSource,
+            trackId: videoTrackId)
+        localCapturer = RTCCameraVideoCapturer(delegate: videoSource)
+        guard let device = RTCCameraVideoCapturer
+            .captureDevices()
+            .first(where: {$0.position == .front}) else {
+            fatalError()
+        }
+        localCapturer?.startCapture(with: device , format: device.formats.first!, fps: 30)
 
-        // TODO: Here mediatrack id should be defined as property
+        let mediaStream = peerConnectionFactory.mediaStream(withStreamId: mediaStreamId)
+        mediaStream.addAudioTrack(audioTrack)
+        mediaStream.addVideoTrack(videoTrack)
+        peerConnection?.add(mediaStream)
+
+        delegate?.webRTCConnection(self, didReceiveLocalVideoTrack: videoTrack)
     }
 }
 
@@ -54,35 +92,138 @@ extension WebRTCConnection: SpreedClientDelegate {
     }
 
     func spreedClient(_ sender: SpreedClient, userDidJoin userId: String) {
-        print(userId)
+        partnerId = userId
+        peerConnection?.offer(
+        for: mandatorySdpConstraints) {sessionDescription, error in
+            if let error = error {
+                print(error)
+                return
+            }
+            guard let sessionDescription = sessionDescription else {
+                fatalError("Session Description empty")
+            }
+
+            self.peerConnection?.setLocalDescription(
+                sessionDescription,
+                completionHandler: { (error) in
+                    if let error = error {
+                        fatalError("Unable to set local description \(error)")
+                    }
+            })
+            self.spreedClient?.send(
+                offer: sessionDescription,
+                to: userId)
+        }
+    }
+
+    func spreedClient(_ sender: SpreedClient,
+                      didReceiveOffer offer: RTCSessionDescription,
+                      from userId: String) {
+        partnerId = userId
+        peerConnection?.setRemoteDescription(offer, completionHandler: { error in
+            if let error = error {
+                fatalError("Unable to set remote description \(error)")
+            }
+        })
+
+        peerConnection?.answer(for: mandatorySdpConstraints) { sessionDescription, error in
+            if let error = error {
+                print(error)
+                return
+            }
+            guard let sessionDescription = sessionDescription else {
+                fatalError("Session Description empty")
+            }
+
+            self.peerConnection?.setLocalDescription(
+                sessionDescription,
+                completionHandler: { (error) in
+                    if let error = error {
+                        fatalError("Unable to set local description \(error)")
+                    }
+            })
+            self.spreedClient?.send(
+                offer: sessionDescription,
+                to: userId)
+        }
+    }
+
+    func spreedClient(_ sender: SpreedClient,
+                      didReceiveAnswer answer: RTCSessionDescription,
+                      from userId: String) {
+        peerConnection?.setRemoteDescription(answer, completionHandler: { error in
+            if let error = error {
+                fatalError("Unable to set remote description \(error)")
+            }
+        })
+    }
+
+    func spreedClient(_ sender: SpreedClient, didReceiveCandidate candidate: RTCIceCandidate, from userId: String) {
+        peerConnection?.add(candidate)
     }
 }
 
 extension WebRTCConnection: RTCPeerConnectionDelegate {
     public func peerConnection(_ peerConnection: RTCPeerConnection, didChange stateChanged: RTCSignalingState) {
+        print(#function)
     }
 
     public func peerConnection(_ peerConnection: RTCPeerConnection, didAdd stream: RTCMediaStream) {
+        print(#function)
+        guard let remoteVideoTrack = stream.videoTracks.first else {
+            print("No Video Tracks")
+            return
+        }
+        delegate?.webRTCConnection(self, didReceiveRemoteVideoTrack: remoteVideoTrack)
     }
 
     public func peerConnection(_ peerConnection: RTCPeerConnection, didRemove stream: RTCMediaStream) {
+        print(#function)
     }
 
     public func peerConnectionShouldNegotiate(_ peerConnection: RTCPeerConnection) {
+        print(#function)
     }
 
     public func peerConnection(_ peerConnection: RTCPeerConnection, didChange newState: RTCIceConnectionState) {
+        print(#function)
+        switch newState {
+        case .new:
+            print("New")
+        case .checking:
+            print("Checking")
+        case .connected:
+            print("Connected")
+        case .completed:
+            print("Completed")
+        case .failed:
+            print("Failed")
+        case .disconnected:
+            print("Disconnected")
+        case .closed:
+            print("Closed")
+        case .count:
+            print("Count")
+        }
     }
 
     public func peerConnection(_ peerConnection: RTCPeerConnection, didChange newState: RTCIceGatheringState) {
+        print(#function)
     }
 
     public func peerConnection(_ peerConnection: RTCPeerConnection, didGenerate candidate: RTCIceCandidate) {
+        print(#function)
+        guard let partnerId = partnerId else {
+            fatalError("Can't send candidate without partner")
+        }
+        spreedClient?.send(candidate, to: partnerId)
     }
 
     public func peerConnection(_ peerConnection: RTCPeerConnection, didRemove candidates: [RTCIceCandidate]) {
+        print(#function)
     }
 
     public func peerConnection(_ peerConnection: RTCPeerConnection, didOpen dataChannel: RTCDataChannel) {
+        print(#function)
     }
 }

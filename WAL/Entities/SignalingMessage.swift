@@ -24,7 +24,7 @@ protocol SignalingMessage: Codable {
 }
 
 struct ErrorSignalingMessage: SignalingMessage {
-    var type = SignalingMessageType.error
+    let type = SignalingMessageType.error
 
     let code: String
     let message: String
@@ -37,17 +37,13 @@ struct ErrorSignalingMessage: SignalingMessage {
 }
 
 struct MeSignalingMessage: SignalingMessage {
-    var type = SignalingMessageType.me
+    let type = SignalingMessageType.me
 
     let token: String
 
     enum CodingKeys: String, CodingKey {
         case type = "Type"
         case token = "Token"
-    }
-
-    init(token: String) {
-        self.token = token
     }
 }
 
@@ -66,16 +62,12 @@ struct HelloSignalingMessage: SignalingMessage {
         }
     }
 
-    var type = SignalingMessageType.hello
-    var hello: Hello
+    let type = SignalingMessageType.hello
+    let hello: Hello
 
     enum CodingKeys: String, CodingKey {
         case type = "Type"
         case hello = "Hello"
-    }
-
-    init(hello: Hello) {
-        self.hello = hello
     }
 }
 
@@ -90,9 +82,9 @@ struct WelcomeSignalingMessage: SignalingMessage {
         }
     }
 
-    var type = SignalingMessageType.welcome
+    let type = SignalingMessageType.welcome
 
-    var welcome: Welcome
+    let welcome: Welcome
 
     enum CodingKeys: String, CodingKey {
         case type = "Type"
@@ -101,7 +93,7 @@ struct WelcomeSignalingMessage: SignalingMessage {
 }
 
 struct JoinedSignalingMessage: SignalingMessage {
-    var type = SignalingMessageType.joined
+    let type = SignalingMessageType.joined
 
     let id: String
     let userAgent: String
@@ -124,8 +116,7 @@ struct ByeSignalingMessage: SignalingMessage {
         }
     }
 
-    var type = SignalingMessageType.bye
-
+    let type = SignalingMessageType.bye
     let bye: Bye
 
     enum CodingKeys: String, CodingKey {
@@ -137,7 +128,7 @@ struct ByeSignalingMessage: SignalingMessage {
 struct OfferSignalingMessage: SignalingMessage {
     struct OfferContainer: Codable {
         let to: String
-        let type: String
+        let type: String = "Offer"
         let offer: SessionDescription
 
         enum CodingKeys: String, CodingKey {
@@ -147,9 +138,9 @@ struct OfferSignalingMessage: SignalingMessage {
         }
     }
 
-    var type = SignalingMessageType.offer
+    let type = SignalingMessageType.offer
 
-    var offer: OfferContainer
+    let offer: OfferContainer
 
     enum CodingKeys: String, CodingKey {
         case type = "Type"
@@ -160,7 +151,7 @@ struct OfferSignalingMessage: SignalingMessage {
 struct AnswerSignalingMessage: SignalingMessage {
     struct AnswerContainer: Codable {
         let to: String
-        let type: String
+        let type: String = "Answer"
         let answer: SessionDescription
 
         enum CodingKeys: String, CodingKey {
@@ -170,9 +161,8 @@ struct AnswerSignalingMessage: SignalingMessage {
         }
     }
 
-    var type = SignalingMessageType.answer
-
-    var answer: AnswerContainer
+    let type = SignalingMessageType.answer
+    let answer: AnswerContainer
 
     enum CodingKeys: String, CodingKey {
         case type = "Type"
@@ -183,7 +173,7 @@ struct AnswerSignalingMessage: SignalingMessage {
 struct CandidateSignalingMessage: SignalingMessage {
     struct CandidateContainer: Codable {
         let to: String
-        let type: String
+        let type: String = "Candidate"
         let candidate: Candidate
 
         enum CodingKeys: String, CodingKey {
@@ -193,9 +183,9 @@ struct CandidateSignalingMessage: SignalingMessage {
         }
     }
 
-    var type = SignalingMessageType.answer
+    let type = SignalingMessageType.candidate
 
-    var candidate: CandidateContainer
+    let candidate: CandidateContainer
 
     enum CodingKeys: String, CodingKey {
         case type = "Type"

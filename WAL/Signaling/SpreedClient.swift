@@ -9,16 +9,26 @@ import Foundation
 import Starscream
 import WebRTC
 
-protocol SpreedClientDelegate {
+protocol SpreedClientDelegate: class {
     func isReadyToConnectToRoom(_ sender: SpreedClient)
     func spreedClient(_ sender: SpreedClient, userDidJoin userId: String)
+    func spreedClient(
+        _ sender: SpreedClient,
+        didReceiveOffer offer: RTCSessionDescription,
+        from userId: String)
+    func spreedClient(_ sender: SpreedClient,
+                      didReceiveAnswer answer: RTCSessionDescription,
+                      from userId: String)
+    func spreedClient(_ sender: SpreedClient,
+                      didReceiveCandidate candidate: RTCIceCandidate,
+                      from userId: String)
 }
 
 class SpreedClient: WebSocketDelegate {
     fileprivate let ws: WebSocket
     fileprivate var me: MeSignalingMessage?
 
-    fileprivate var delegate: SpreedClientDelegate?
+    fileprivate weak var delegate: SpreedClientDelegate?
     fileprivate var roomName: String
 
     init(with url: String, roomName: String, delegate: SpreedClientDelegate) {
@@ -43,14 +53,41 @@ class SpreedClient: WebSocketDelegate {
             fatalError("Unable to encode HelloSignalingMessage")
         }
 
+        send(data: data)
         ws.write(string: String(data: data, encoding: .utf8)!)
     }
 
     func send(offer: RTCSessionDescription, to userId: String) {
+        let offerSignalingMessage = OfferSignalingMessage(
+            offer: OfferSignalingMessage.OfferContainer(
+                to: userId,
+                offer: SessionDescription(from: offer)))
 
+        guard let data = try? JSONEncoder().encode(offerSignalingMessage) else {
+            fatalError("Unable to encode OfferSignalingMessage")
+        }
+        send(data: data)
+    }
+
+    func send(_ candidate: RTCIceCandidate, to userId: String) {
+        let candidateSignalingMessage = CandidateSignalingMessage(
+            candidate: CandidateSignalingMessage.CandidateContainer(
+                to: userId,
+                candidate: Candidate(from: candidate)))
+
+        guard let data = try? JSONEncoder().encode(candidateSignalingMessage) else {
+            fatalError("Unable to encode CandidateSignalingMessage")
+        }
+        send(data: data)
+    }
+
+    func send(data: Data) {
+        let dataAsString = String(data: data, encoding: .utf8)!
+        ws.write(string: dataAsString)
     }
 
     // MARK: - WebSocketDelegate
+
     func websocketDidConnect(socket: WebSocketClient) {
         print("Websocket connected")
     }
@@ -60,8 +97,6 @@ class SpreedClient: WebSocketDelegate {
     }
 
     func websocketDidReceiveMessage(socket: WebSocketClient, text: String) {
-        print("Websocket message \(text)")
-
         guard let data = text.data(using: .utf8) else {
             fatalError("Wrong encoding for received message")
         }
@@ -71,14 +106,40 @@ class SpreedClient: WebSocketDelegate {
             from: data) {
             me = meCarrier.data
             delegate?.isReadyToConnectToRoom(self)
+            print("Received ME")
         } else if let welcomeCarrier = try? JSONDecoder().decode(
             Carrier<WelcomeSignalingMessage>.self,
             from: data) {
-            print(welcomeCarrier.data.welcome)
+            print("Received Welcome")
         } else if let joinedCarrier = try? JSONDecoder().decode(
             Carrier<JoinedSignalingMessage>.self,
             from: data) {
             delegate?.spreedClient(self, userDidJoin: joinedCarrier.data.id)
+            print("Received Joined")
+        } else if let offerCarrier = try? JSONDecoder().decode(
+            Carrier<OfferSignalingMessage.OfferContainer>.self,
+            from: data) {
+            delegate?.spreedClient(
+                self,
+                didReceiveOffer: offerCarrier.data.offer.toRTCSessionDescription(),
+                from: offerCarrier.from)
+            print("Received Offer")
+        } else if let answerCarrier = try? JSONDecoder().decode(
+            Carrier<AnswerSignalingMessage.AnswerContainer>.self,
+            from: data) {
+            delegate?.spreedClient(
+                self,
+                didReceiveAnswer: answerCarrier.data.answer.toRTCSessionDescription(),
+                from: answerCarrier.from)
+            print("Received Answer")
+        } else if let candidateCarrier = try? JSONDecoder().decode(
+            Carrier<CandidateSignalingMessage.CandidateContainer>.self,
+            from: data) {
+            delegate?.spreedClient(
+                self,
+                didReceiveCandidate: candidateCarrier.data.candidate.toRtcCandidate(),
+                from: candidateCarrier.from)
+            print("Received Candidate")
         }
     }
 
