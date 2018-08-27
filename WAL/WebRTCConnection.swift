@@ -28,6 +28,7 @@ public class WebRTCConnection: NSObject {
     fileprivate let peerConnectionFactory = RTCPeerConnectionFactory()
     fileprivate var peerConnection: RTCPeerConnection?
     fileprivate var partnerId: String?
+    fileprivate var remoteVideoTrack: RTCVideoTrack?
 
     fileprivate let mandatorySdpConstraints = RTCMediaConstraints(
         mandatoryConstraints:["OfferToReceiveAudio": "true",
@@ -45,12 +46,13 @@ public class WebRTCConnection: NSObject {
             roomName: roomName,
             delegate: self)
 
+        let optionalConstraints = ["DtlsSrtpKeyAgreement": "true"]
         peerConnection = peerConnectionFactory
             .peerConnection(
                 with: RTCConfiguration(),
                 constraints: RTCMediaConstraints(
                     mandatoryConstraints: nil,
-                    optionalConstraints: nil),
+                    optionalConstraints: optionalConstraints),
                 delegate: self)
 
         createMediaTracks()
@@ -72,9 +74,13 @@ public class WebRTCConnection: NSObject {
         guard let device = RTCCameraVideoCapturer
             .captureDevices()
             .first(where: {$0.position == .front}) else {
-            fatalError()
+                fatalError()
         }
-        localCapturer?.startCapture(with: device , format: device.formats.first!, fps: 30)
+
+        localCapturer?.startCapture(
+            with: device,
+            format: device.activeFormat,
+            fps: Int(device.activeFormat.videoSupportedFrameRateRanges.first!.maxFrameRate))
 
         let mediaStream = peerConnectionFactory.mediaStream(withStreamId: mediaStreamId)
         mediaStream.addAudioTrack(audioTrack)
@@ -120,7 +126,8 @@ extension WebRTCConnection: SpreedClientDelegate {
                       didReceiveOffer offer: RTCSessionDescription,
                       from userId: String) {
         partnerId = userId
-        peerConnection?.setRemoteDescription(offer, completionHandler: { error in
+
+        self.peerConnection?.setRemoteDescription(offer, completionHandler: { error in
             if let error = error {
                 fatalError("Unable to set remote description \(error)")
             }
@@ -141,10 +148,10 @@ extension WebRTCConnection: SpreedClientDelegate {
                     if let error = error {
                         fatalError("Unable to set local description \(error)")
                     }
+                    self.spreedClient?.send(
+                        answer: sessionDescription,
+                        to: userId)
             })
-            self.spreedClient?.send(
-                offer: sessionDescription,
-                to: userId)
         }
     }
 
@@ -174,6 +181,7 @@ extension WebRTCConnection: RTCPeerConnectionDelegate {
             print("No Video Tracks")
             return
         }
+        self.remoteVideoTrack = remoteVideoTrack
         delegate?.webRTCConnection(self, didReceiveRemoteVideoTrack: remoteVideoTrack)
     }
 
@@ -209,6 +217,15 @@ extension WebRTCConnection: RTCPeerConnectionDelegate {
 
     public func peerConnection(_ peerConnection: RTCPeerConnection, didChange newState: RTCIceGatheringState) {
         print(#function)
+
+        switch newState {
+        case .new:
+            print("new ice gathering")
+        case .gathering:
+            print("gathering")
+        case .complete:
+            print("complete ice gathering")
+        }
     }
 
     public func peerConnection(_ peerConnection: RTCPeerConnection, didGenerate candidate: RTCIceCandidate) {

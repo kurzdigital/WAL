@@ -54,7 +54,6 @@ class SpreedClient: WebSocketDelegate {
         }
 
         send(data: data)
-        ws.write(string: String(data: data, encoding: .utf8)!)
     }
 
     func send(offer: RTCSessionDescription, to userId: String) {
@@ -64,6 +63,18 @@ class SpreedClient: WebSocketDelegate {
                 offer: SessionDescription(from: offer)))
 
         guard let data = try? JSONEncoder().encode(offerSignalingMessage) else {
+            fatalError("Unable to encode OfferSignalingMessage")
+        }
+        send(data: data)
+    }
+
+    func send(answer: RTCSessionDescription, to userId: String) {
+        let answerSignalingMessage = AnswerSignalingMessage(
+            answer: AnswerSignalingMessage.AnswerContainer(
+                to: userId,
+                answer: SessionDescription(from: answer)))
+
+        guard let data = try? JSONEncoder().encode(answerSignalingMessage) else {
             fatalError("Unable to encode OfferSignalingMessage")
         }
         send(data: data)
