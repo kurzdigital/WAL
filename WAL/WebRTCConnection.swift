@@ -29,6 +29,7 @@ public class WebRTCConnection: NSObject {
     fileprivate var peerConnection: RTCPeerConnection?
     fileprivate var partnerId: String?
     fileprivate var remoteVideoTrack: RTCVideoTrack?
+    fileprivate var datachannel: RTCDataChannel?
 
     fileprivate let mandatorySdpConstraints = RTCMediaConstraints(
         mandatoryConstraints:["OfferToReceiveAudio": "true",
@@ -56,6 +57,26 @@ public class WebRTCConnection: NSObject {
                 delegate: self)
 
         createMediaTracks()
+        createDataChannel()
+    }
+
+    public func send(data: Data) {
+       datachannel?.sendData(RTCDataBuffer(data: data, isBinary: false))
+    }
+
+    fileprivate func createDataChannel() {
+        let dataChannelConfig = RTCDataChannelConfiguration()
+        dataChannelConfig.isOrdered = true
+        // TODO: What does that mean
+        dataChannelConfig.isNegotiated = true
+        dataChannelConfig.channelId = 1
+        dataChannelConfig.protocol = "WhaleDataChannelProtocol"
+
+        datachannel = peerConnection?.dataChannel(
+            forLabel: "WhaleDataChannel",
+            configuration: dataChannelConfig)
+
+        datachannel?.delegate = self
     }
 
     fileprivate func createMediaTracks() {
@@ -242,5 +263,16 @@ extension WebRTCConnection: RTCPeerConnectionDelegate {
 
     public func peerConnection(_ peerConnection: RTCPeerConnection, didOpen dataChannel: RTCDataChannel) {
         print(#function)
+        print("DataChannel opened")
+    }
+}
+
+extension WebRTCConnection: RTCDataChannelDelegate {
+    public func dataChannelDidChangeState(_ dataChannel: RTCDataChannel) {
+        print(#function)
+    }
+
+    public func dataChannel(_ dataChannel: RTCDataChannel, didReceiveMessageWith buffer: RTCDataBuffer) {
+        print(String(data: buffer.data, encoding: .utf8)!)
     }
 }
