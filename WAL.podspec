@@ -14,6 +14,7 @@ Pod::Spec.new do |s|
   s.homepage     = "https://kurzdigital.com"
   s.license = { :type => 'BSD'} 
   s.author             = { "Christian Braun" => "christian.braun@kurzdigital.com" }
+  s.xcconfig = { "ENABLE_BITCODE" => "NO" } 
   s.social_media_url   = "http://twitter.com/NorbiBraun"
   s.platform     = :ios, "10.0"
   s.source       = { :git => "https://git.kurzdigital.com/cbr/WAL", :tag => s.version.to_s}

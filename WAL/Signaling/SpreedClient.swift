@@ -118,7 +118,7 @@ class SpreedClient: WebSocketDelegate {
             me = meCarrier.data
             delegate?.isReadyToConnectToRoom(self)
             print("Received ME")
-        } else if let welcomeCarrier = try? JSONDecoder().decode(
+        } else if let _ = try? JSONDecoder().decode(
             Carrier<WelcomeSignalingMessage>.self,
             from: data) {
             print("Received Welcome")

@@ -12,11 +12,17 @@ public extension WebRTCConnection {
         public let signalingServerUrl: String
         public let turnServer: TurnServer?
         public let stunServerUrl: String?
+        public let formatConstraints: FormatConstraints?
 
-        public init(signalingServerUrl: String, turnServer: TurnServer?, stunServerUrl: String?) {
+        public init(
+            signalingServerUrl: String,
+            turnServer: TurnServer?,
+            stunServerUrl: String?,
+            formatConstraints: FormatConstraints?) {
             self.signalingServerUrl = signalingServerUrl
             self.turnServer = turnServer
             self.stunServerUrl = stunServerUrl
+            self.formatConstraints = formatConstraints
         }
     }
 
@@ -29,6 +35,16 @@ public extension WebRTCConnection {
             self.url = url
             self.username = username
             self.password = password
+        }
+    }
+
+    public struct FormatConstraints {
+        public let preferredWidth: Int32
+        public let preferredHeight: Int32
+
+        public init(preferredWidth: Int32, preferredHeight: Int32) {
+            self.preferredWidth = preferredWidth
+            self.preferredHeight = preferredHeight
         }
     }
 }

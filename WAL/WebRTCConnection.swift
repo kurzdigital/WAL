@@ -47,13 +47,12 @@ public class WebRTCConnection: NSObject {
             roomName: roomName,
             delegate: self)
 
-        let optionalConstraints = ["DtlsSrtpKeyAgreement": "true"]
         peerConnection = peerConnectionFactory
             .peerConnection(
                 with: RTCConfiguration(),
                 constraints: RTCMediaConstraints(
                     mandatoryConstraints: nil,
-                    optionalConstraints: optionalConstraints),
+                    optionalConstraints: nil),
                 delegate: self)
 
         createMediaTracks()
@@ -98,16 +97,16 @@ public class WebRTCConnection: NSObject {
                 fatalError()
         }
 
-        localCapturer?.startCapture(
-            with: device,
-            format: device.activeFormat,
-            fps: Int(device.activeFormat.videoSupportedFrameRateRanges.first!.maxFrameRate))
-
         let mediaStream = peerConnectionFactory.mediaStream(withStreamId: mediaStreamId)
         mediaStream.addAudioTrack(audioTrack)
         mediaStream.addVideoTrack(videoTrack)
         peerConnection?.add(mediaStream)
 
+        let format = RTCCameraVideoCapturer.format(for: device, constraints: config.formatConstraints)
+        localCapturer?.startCapture(
+            with: device,
+            format: format,
+            fps: RTCCameraVideoCapturer.fps(for: format))
         delegate?.webRTCConnection(self, didReceiveLocalVideoTrack: videoTrack)
     }
 }
