@@ -14,7 +14,7 @@ fileprivate let videoTrackId = "WaleVS01"
 fileprivate let mediaStreamId = "WaleMS"
 
 public protocol WebRTCConnectionDelegate: class {
-    func webRTCConnection(_ sender: WebRTCConnection, didReceiveLocalVideoTrack localTrack: RTCVideoTrack)
+    func webRTCConnection(_ sender: WebRTCConnection, didReceiveLocalCapturer localCapturer: RTCCameraVideoCapturer)
     func webRTCConnection(_ sender: WebRTCConnection, didReceiveRemoteVideoTrack remoteTrack: RTCVideoTrack)
 }
 
@@ -97,6 +97,7 @@ public class WebRTCConnection: NSObject {
                 fatalError()
         }
 
+        print(device.position.rawValue)
         let mediaStream = peerConnectionFactory.mediaStream(withStreamId: mediaStreamId)
         mediaStream.addAudioTrack(audioTrack)
         mediaStream.addVideoTrack(videoTrack)
@@ -107,7 +108,7 @@ public class WebRTCConnection: NSObject {
             with: device,
             format: format,
             fps: RTCCameraVideoCapturer.fps(for: format))
-        delegate?.webRTCConnection(self, didReceiveLocalVideoTrack: videoTrack)
+        delegate?.webRTCConnection(self, didReceiveLocalCapturer: localCapturer!)
     }
 }
 
