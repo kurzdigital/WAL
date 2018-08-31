@@ -16,6 +16,8 @@ fileprivate let mediaStreamId = "WaleMS"
 public protocol WebRTCConnectionDelegate: class {
     func webRTCConnection(_ sender: WebRTCConnection, didReceiveLocalCapturer localCapturer: RTCCameraVideoCapturer)
     func webRTCConnection(_ sender: WebRTCConnection, didReceiveRemoteVideoTrack remoteTrack: RTCVideoTrack)
+    func didOpenDataChannel(_ sender: WebRTCConnection)
+    func didDisconnect(_ sender: WebRTCConnection)
 }
 
 public class WebRTCConnection: NSObject {
@@ -56,7 +58,11 @@ public class WebRTCConnection: NSObject {
                 delegate: self)
 
         createMediaTracks()
-        createDataChannel()
+    }
+
+    public func disconnect() {
+        spreedClient?.disconnect()
+        peerConnection?.close()
     }
 
     public func send(data: Data) {
@@ -66,9 +72,7 @@ public class WebRTCConnection: NSObject {
     fileprivate func createDataChannel() {
         let dataChannelConfig = RTCDataChannelConfiguration()
         dataChannelConfig.isOrdered = true
-        // TODO: What does that mean
-        dataChannelConfig.isNegotiated = true
-        dataChannelConfig.channelId = 1
+        dataChannelConfig.channelId = 12
         dataChannelConfig.protocol = "WhaleDataChannelProtocol"
 
         datachannel = peerConnection?.dataChannel(
@@ -113,13 +117,23 @@ public class WebRTCConnection: NSObject {
 }
 
 extension WebRTCConnection: SpreedClientDelegate {
+    func connectionDidClose(_ sender: SpreedClient) {
+        // Do nothing
+    }
+
     // MARK: - SpreedClientDelegate
     func isReadyToConnectToRoom(_ sender: SpreedClient) {
         spreedClient?.connect()
     }
 
+    func spreedClient(_ sender: SpreedClient, userDidLeave userId: String) {
+        spreedClient?.disconnect()
+        peerConnection?.close()
+    }
+
     func spreedClient(_ sender: SpreedClient, userDidJoin userId: String) {
         partnerId = userId
+        createDataChannel()
         peerConnection?.offer(
         for: mandatorySdpConstraints) {sessionDescription, error in
             if let error = error {
@@ -231,6 +245,7 @@ extension WebRTCConnection: RTCPeerConnectionDelegate {
             print("Disconnected")
         case .closed:
             print("Closed")
+            delegate?.didDisconnect(self)
         case .count:
             print("Count")
         }
@@ -264,6 +279,7 @@ extension WebRTCConnection: RTCPeerConnectionDelegate {
     public func peerConnection(_ peerConnection: RTCPeerConnection, didOpen dataChannel: RTCDataChannel) {
         print(#function)
         print("DataChannel opened")
+        delegate?.didOpenDataChannel(self)
     }
 }
 

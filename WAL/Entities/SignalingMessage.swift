@@ -8,12 +8,11 @@
 import Foundation
 
 enum SignalingMessageType: String, Codable {
-    case error = "Error"
     case me = "Self"
     case hello = "Hello"
     case welcome = "Welcome"
     case joined = "Joined"
-    case bye = "Bye"
+    case left = "Left"
     case offer = "Offer"
     case answer = "Answer"
     case candidate = "Candidate"
@@ -21,19 +20,6 @@ enum SignalingMessageType: String, Codable {
 
 protocol SignalingMessage: Codable {
     var type: SignalingMessageType { get }
-}
-
-struct ErrorSignalingMessage: SignalingMessage {
-    let type = SignalingMessageType.error
-
-    let code: String
-    let message: String
-
-    enum CodingKeys: String, CodingKey {
-        case type = "Type"
-        case code = "Code"
-        case message = "Message"
-    }
 }
 
 struct MeSignalingMessage: SignalingMessage {
@@ -105,23 +91,13 @@ struct JoinedSignalingMessage: SignalingMessage {
     }
 }
 
-struct ByeSignalingMessage: SignalingMessage {
-    struct Bye: Codable {
-        let to: String
-        let type: String
-
-        enum CodingKeys: String, CodingKey {
-            case to = "To"
-            case type = "Type"
-        }
-    }
-
-    let type = SignalingMessageType.bye
-    let bye: Bye
+struct LeftSignalingMessage: SignalingMessage {
+    let type = SignalingMessageType.left
+    let id: String
 
     enum CodingKeys: String, CodingKey {
         case type = "Type"
-        case bye = "Bye"
+        case id = "Id"
     }
 }
 

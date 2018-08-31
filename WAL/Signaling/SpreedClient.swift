@@ -12,6 +12,7 @@ import WebRTC
 protocol SpreedClientDelegate: class {
     func isReadyToConnectToRoom(_ sender: SpreedClient)
     func spreedClient(_ sender: SpreedClient, userDidJoin userId: String)
+    func spreedClient(_ sender: SpreedClient, userDidLeave userId: String)
     func spreedClient(
         _ sender: SpreedClient,
         didReceiveOffer offer: RTCSessionDescription,
@@ -22,6 +23,7 @@ protocol SpreedClientDelegate: class {
     func spreedClient(_ sender: SpreedClient,
                       didReceiveCandidate candidate: RTCIceCandidate,
                       from userId: String)
+    func connectionDidClose(_ sender: SpreedClient)
 }
 
 class SpreedClient: WebSocketDelegate {
@@ -54,6 +56,10 @@ class SpreedClient: WebSocketDelegate {
         }
 
         send(data: data)
+    }
+
+    func disconnect() {
+        ws.disconnect()
     }
 
     func send(offer: RTCSessionDescription, to userId: String) {
@@ -105,6 +111,7 @@ class SpreedClient: WebSocketDelegate {
 
     func websocketDidDisconnect(socket: WebSocketClient, error: Error?) {
         print("Websocket disconnected")
+        delegate?.connectionDidClose(self)
     }
 
     func websocketDidReceiveMessage(socket: WebSocketClient, text: String) {
@@ -151,6 +158,10 @@ class SpreedClient: WebSocketDelegate {
                 didReceiveCandidate: candidateCarrier.data.candidate.toRtcCandidate(),
                 from: candidateCarrier.from)
             print("Received Candidate")
+        } else if let leftCarrier = try? JSONDecoder().decode(
+        Carrier<LeftSignalingMessage>.self,
+        from: data) {
+            delegate?.spreedClient(self, userDidLeave: leftCarrier.data.id)
         }
     }
 
