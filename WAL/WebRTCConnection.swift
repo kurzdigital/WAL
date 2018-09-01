@@ -16,11 +16,29 @@ fileprivate let mediaStreamId = "WaleMS"
 public protocol WebRTCConnectionDelegate: class {
     func webRTCConnection(_ sender: WebRTCConnection, didReceiveLocalCapturer localCapturer: RTCCameraVideoCapturer)
     func webRTCConnection(_ sender: WebRTCConnection, didReceiveRemoteVideoTrack remoteTrack: RTCVideoTrack)
+    func webRTCConnection(_ sender: WebRTCConnection, userDidJoin userId: String)
+    func webRTCConnection(_ sender: WebRTCConnection, didChange state: WebRTCConnection.State)
     func didOpenDataChannel(_ sender: WebRTCConnection)
+    func webRTCConnection(_ sender: WebRTCConnection, didReceiveDataChanelData data: Data)
     func didDisconnect(_ sender: WebRTCConnection)
+    func didReceiveIncomingCall(_ sender: WebRTCConnection, from userId: String)
 }
 
 public class WebRTCConnection: NSObject {
+    public enum State {
+        case disconnected
+        case connectingToSignalingServer
+        case connectingWithPartner
+        case connectedWithPartner
+    }
+
+    public var state = WebRTCConnection.State.disconnected {
+        didSet {
+            if oldValue != state {
+                delegate?.webRTCConnection(self, didChange: state)
+            }
+        }
+    }
     let config: Config
     fileprivate(set) var localCapturer: RTCCameraVideoCapturer?
 
@@ -43,7 +61,7 @@ public class WebRTCConnection: NSObject {
         self.delegate = delegate
     }
 
-    public func connect(roomName: String) {
+    public func join(roomName: String) {
         spreedClient = SpreedClient(
             with: config.signalingServerUrl,
             roomName: roomName,
@@ -58,11 +76,67 @@ public class WebRTCConnection: NSObject {
                 delegate: self)
 
         createMediaTracks()
+        state = .connectingToSignalingServer
+    }
+
+    public func connect(toUserId userId: String) {
+        partnerId = userId
+        createDataChannel()
+        peerConnection?.offer(
+        for: mandatorySdpConstraints) {sessionDescription, error in
+            if let error = error {
+                print(error)
+                return
+            }
+            guard let sessionDescription = sessionDescription else {
+                fatalError("Session Description empty")
+            }
+
+            self.peerConnection?.setLocalDescription(
+                sessionDescription,
+                completionHandler: { (error) in
+                    if let error = error {
+                        fatalError("Unable to set local description \(error)")
+                    }
+            })
+            self.spreedClient?.send(
+                offer: sessionDescription,
+                to: userId)
+        }
+    }
+
+    public func answerIncomingCall(userId: String) {
+        partnerId = userId
+        peerConnection?.answer(for: mandatorySdpConstraints) { sessionDescription, error in
+            if let error = error {
+                print(error)
+                return
+            }
+            guard let sessionDescription = sessionDescription else {
+                fatalError("Session Description empty")
+            }
+
+            self.peerConnection?.setLocalDescription(
+                sessionDescription,
+                completionHandler: { (error) in
+                    if let error = error {
+                        fatalError("Unable to set local description \(error)")
+                    }
+                    self.spreedClient?.send(
+                        answer: sessionDescription,
+                        to: userId)
+            })
+        }
     }
 
     public func disconnect() {
         spreedClient?.disconnect()
         peerConnection?.close()
+        peerConnection = nil
+        datachannel = nil
+        localCapturer = nil
+        remoteVideoTrack = nil
+        partnerId = nil
     }
 
     public func send(data: Data) {
@@ -101,7 +175,6 @@ public class WebRTCConnection: NSObject {
                 fatalError()
         }
 
-        print(device.position.rawValue)
         let mediaStream = peerConnectionFactory.mediaStream(withStreamId: mediaStreamId)
         mediaStream.addAudioTrack(audioTrack)
         mediaStream.addVideoTrack(videoTrack)
@@ -132,62 +205,19 @@ extension WebRTCConnection: SpreedClientDelegate {
     }
 
     func spreedClient(_ sender: SpreedClient, userDidJoin userId: String) {
-        partnerId = userId
-        createDataChannel()
-        peerConnection?.offer(
-        for: mandatorySdpConstraints) {sessionDescription, error in
-            if let error = error {
-                print(error)
-                return
-            }
-            guard let sessionDescription = sessionDescription else {
-                fatalError("Session Description empty")
-            }
-
-            self.peerConnection?.setLocalDescription(
-                sessionDescription,
-                completionHandler: { (error) in
-                    if let error = error {
-                        fatalError("Unable to set local description \(error)")
-                    }
-            })
-            self.spreedClient?.send(
-                offer: sessionDescription,
-                to: userId)
-        }
+        delegate?.webRTCConnection(self, userDidJoin: userId)
     }
 
     func spreedClient(_ sender: SpreedClient,
                       didReceiveOffer offer: RTCSessionDescription,
                       from userId: String) {
-        partnerId = userId
-
         self.peerConnection?.setRemoteDescription(offer, completionHandler: { error in
             if let error = error {
                 fatalError("Unable to set remote description \(error)")
             }
         })
+        delegate?.didReceiveIncomingCall(self, from: userId)
 
-        peerConnection?.answer(for: mandatorySdpConstraints) { sessionDescription, error in
-            if let error = error {
-                print(error)
-                return
-            }
-            guard let sessionDescription = sessionDescription else {
-                fatalError("Session Description empty")
-            }
-
-            self.peerConnection?.setLocalDescription(
-                sessionDescription,
-                completionHandler: { (error) in
-                    if let error = error {
-                        fatalError("Unable to set local description \(error)")
-                    }
-                    self.spreedClient?.send(
-                        answer: sessionDescription,
-                        to: userId)
-            })
-        }
     }
 
     func spreedClient(_ sender: SpreedClient,
@@ -234,17 +264,20 @@ extension WebRTCConnection: RTCPeerConnectionDelegate {
         case .new:
             print("New")
         case .checking:
-            print("Checking")
+            state = .connectingWithPartner
         case .connected:
-            print("Connected")
+            state = .connectedWithPartner
         case .completed:
             print("Completed")
         case .failed:
+            state = .disconnected
             print("Failed")
         case .disconnected:
+            state = .disconnected
             print("Disconnected")
         case .closed:
             print("Closed")
+            state = .disconnected
             delegate?.didDisconnect(self)
         case .count:
             print("Count")
@@ -289,6 +322,6 @@ extension WebRTCConnection: RTCDataChannelDelegate {
     }
 
     public func dataChannel(_ dataChannel: RTCDataChannel, didReceiveMessageWith buffer: RTCDataBuffer) {
-        print(String(data: buffer.data, encoding: .utf8)!)
+        delegate?.webRTCConnection(self, didReceiveDataChanelData: buffer.data)
     }
 }
