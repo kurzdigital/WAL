@@ -16,11 +16,12 @@ fileprivate let mediaStreamId = "WaleMS"
 public protocol WebRTCConnectionDelegate: class {
     func webRTCConnection(_ sender: WebRTCConnection, didReceiveLocalCapturer localCapturer: RTCCameraVideoCapturer)
     func webRTCConnection(_ sender: WebRTCConnection, didReceiveRemoteVideoTrack remoteTrack: RTCVideoTrack)
+    func webRTCConnection(_ sender: WebRTCConnection, didReceiveLocalAudioTrack remoteTrack: RTCAudioTrack)
+    func webRTCConnection(_ sender: WebRTCConnection, didReceiveRemoteAudioTrack remoteTrack: RTCAudioTrack)
     func webRTCConnection(_ sender: WebRTCConnection, userDidJoin userId: String)
     func webRTCConnection(_ sender: WebRTCConnection, didChange state: WebRTCConnection.State)
     func didOpenDataChannel(_ sender: WebRTCConnection)
     func webRTCConnection(_ sender: WebRTCConnection, didReceiveDataChanelData data: Data)
-    func didDisconnect(_ sender: WebRTCConnection)
     func didReceiveIncomingCall(_ sender: WebRTCConnection, from userId: String)
 }
 
@@ -40,16 +41,19 @@ public class WebRTCConnection: NSObject {
         }
     }
     let config: Config
-    fileprivate(set) var localCapturer: RTCCameraVideoCapturer?
-
 
     fileprivate weak var delegate: WebRTCConnectionDelegate?
     fileprivate var spreedClient: SpreedClient?
     fileprivate let peerConnectionFactory = RTCPeerConnectionFactory()
     fileprivate var peerConnection: RTCPeerConnection?
     fileprivate var partnerId: String?
-    fileprivate var remoteVideoTrack: RTCVideoTrack?
+
+    fileprivate(set) public var localCapturer: RTCCameraVideoCapturer?
+    fileprivate(set) public var remoteVideoTrack: RTCVideoTrack?
+    fileprivate(set) public var localAudioTrack: RTCAudioTrack?
+    fileprivate(set) public var remoteAudioTrack: RTCAudioTrack?
     fileprivate var datachannel: RTCDataChannel?
+
 
     fileprivate let mandatorySdpConstraints = RTCMediaConstraints(
         mandatoryConstraints:["OfferToReceiveAudio": "true",
@@ -75,15 +79,15 @@ public class WebRTCConnection: NSObject {
                     optionalConstraints: nil),
                 delegate: self)
 
-        createMediaTracks()
         state = .connectingToSignalingServer
+        createMediaTracks()
     }
 
     public func connect(toUserId userId: String) {
         partnerId = userId
         createDataChannel()
         peerConnection?.offer(
-        for: mandatorySdpConstraints) {sessionDescription, error in
+        for: mandatorySdpConstraints) { sessionDescription, error in
             if let error = error {
                 print(error)
                 return
@@ -130,17 +134,22 @@ public class WebRTCConnection: NSObject {
     }
 
     public func disconnect() {
+        print("Call disconnect")
+        localCapturer?.stopCapture()
         spreedClient?.disconnect()
-        peerConnection?.close()
-        peerConnection = nil
+        datachannel?.close()
         datachannel = nil
         localCapturer = nil
         remoteVideoTrack = nil
+        localAudioTrack = nil
+        remoteAudioTrack = nil
         partnerId = nil
+        peerConnection?.close()
+        peerConnection = nil
     }
 
     public func send(data: Data) {
-       datachannel?.sendData(RTCDataBuffer(data: data, isBinary: false))
+        datachannel?.sendData(RTCDataBuffer(data: data, isBinary: false))
     }
 
     fileprivate func createDataChannel() {
@@ -157,6 +166,7 @@ public class WebRTCConnection: NSObject {
     }
 
     fileprivate func createMediaTracks() {
+        #if !arch(i386) && !arch(x86_64)
         let audioSource = peerConnectionFactory.audioSource(
             with: RTCMediaConstraints(
                 mandatoryConstraints: nil,
@@ -168,6 +178,7 @@ public class WebRTCConnection: NSObject {
         let videoTrack = peerConnectionFactory.videoTrack(
             with: videoSource,
             trackId: videoTrackId)
+
         localCapturer = RTCCameraVideoCapturer(delegate: videoSource)
         guard let device = RTCCameraVideoCapturer
             .captureDevices()
@@ -179,6 +190,8 @@ public class WebRTCConnection: NSObject {
         mediaStream.addAudioTrack(audioTrack)
         mediaStream.addVideoTrack(videoTrack)
         peerConnection?.add(mediaStream)
+        localAudioTrack = audioTrack
+        delegate?.webRTCConnection(self, didReceiveLocalAudioTrack: audioTrack)
 
         let format = RTCCameraVideoCapturer.format(for: device, constraints: config.formatConstraints)
         localCapturer?.startCapture(
@@ -186,6 +199,7 @@ public class WebRTCConnection: NSObject {
             format: format,
             fps: RTCCameraVideoCapturer.fps(for: format))
         delegate?.webRTCConnection(self, didReceiveLocalCapturer: localCapturer!)
+        #endif
     }
 }
 
@@ -201,7 +215,7 @@ extension WebRTCConnection: SpreedClientDelegate {
 
     func spreedClient(_ sender: SpreedClient, userDidLeave userId: String) {
         spreedClient?.disconnect()
-        peerConnection?.close()
+        disconnect()
     }
 
     func spreedClient(_ sender: SpreedClient, userDidJoin userId: String) {
@@ -238,16 +252,28 @@ extension WebRTCConnection: SpreedClientDelegate {
 extension WebRTCConnection: RTCPeerConnectionDelegate {
     public func peerConnection(_ peerConnection: RTCPeerConnection, didChange stateChanged: RTCSignalingState) {
         print(#function)
+        switch stateChanged {
+        case .stable,
+             .haveLocalOffer,
+             .haveLocalPrAnswer,
+             .haveRemoteOffer,
+             .haveRemotePrAnswer:
+            print("Other State")
+        case .closed:
+            print("Signaling closed")
+        }
     }
 
     public func peerConnection(_ peerConnection: RTCPeerConnection, didAdd stream: RTCMediaStream) {
         print(#function)
-        guard let remoteVideoTrack = stream.videoTracks.first else {
-            print("No Video Tracks")
-            return
+        if let remoteVideoTrack = stream.videoTracks.first {
+            self.remoteVideoTrack = remoteVideoTrack
+            delegate?.webRTCConnection(self, didReceiveRemoteVideoTrack: remoteVideoTrack)
         }
-        self.remoteVideoTrack = remoteVideoTrack
-        delegate?.webRTCConnection(self, didReceiveRemoteVideoTrack: remoteVideoTrack)
+        if let remoteAudioTrack = stream.audioTracks.first {
+            self.remoteAudioTrack = remoteAudioTrack
+            delegate?.webRTCConnection(self, didReceiveLocalAudioTrack: remoteAudioTrack)
+        }
     }
 
     public func peerConnection(_ peerConnection: RTCPeerConnection, didRemove stream: RTCMediaStream) {
@@ -264,8 +290,10 @@ extension WebRTCConnection: RTCPeerConnectionDelegate {
         case .new:
             print("New")
         case .checking:
+            print("Checking")
             state = .connectingWithPartner
         case .connected:
+            print("Connected")
             state = .connectedWithPartner
         case .completed:
             print("Completed")
@@ -278,7 +306,6 @@ extension WebRTCConnection: RTCPeerConnectionDelegate {
         case .closed:
             print("Closed")
             state = .disconnected
-            delegate?.didDisconnect(self)
         case .count:
             print("Count")
         }
