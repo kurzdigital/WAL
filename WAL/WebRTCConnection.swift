@@ -71,9 +71,23 @@ public class WebRTCConnection: NSObject {
             roomName: roomName,
             delegate: self)
 
+        let rtcConfig = RTCConfiguration()
+        var iceServers = [RTCIceServer]()
+        if let turnServer = config.turnServer {
+            iceServers.append(RTCIceServer(
+                urlStrings: [turnServer.url],
+                username: turnServer.username,
+                credential: turnServer.password))
+        }
+        if let stunServerUrl = config.stunServerUrl {
+            iceServers.append(RTCIceServer(urlStrings: [stunServerUrl]))
+        }
+
+        rtcConfig.iceServers = iceServers
+
         peerConnection = peerConnectionFactory
             .peerConnection(
-                with: RTCConfiguration(),
+                with: rtcConfig,
                 constraints: RTCMediaConstraints(
                     mandatoryConstraints: nil,
                     optionalConstraints: nil),
@@ -358,7 +372,6 @@ extension WebRTCConnection: RTCDataChannelDelegate {
     }
 
     public func dataChannel(_ dataChannel: RTCDataChannel, didReceiveMessageWith buffer: RTCDataBuffer) {
-        print(String(data: buffer.data, encoding: .utf8))
         delegate?.webRTCConnection(self, didReceiveDataChannelData: buffer.data)
     }
 }
