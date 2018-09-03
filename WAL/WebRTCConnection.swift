@@ -21,7 +21,7 @@ public protocol WebRTCConnectionDelegate: class {
     func webRTCConnection(_ sender: WebRTCConnection, userDidJoin userId: String)
     func webRTCConnection(_ sender: WebRTCConnection, didChange state: WebRTCConnection.State)
     func didOpenDataChannel(_ sender: WebRTCConnection)
-    func webRTCConnection(_ sender: WebRTCConnection, didReceiveDataChanelData data: Data)
+    func webRTCConnection(_ sender: WebRTCConnection, didReceiveDataChannelData data: Data)
     func didReceiveIncomingCall(_ sender: WebRTCConnection, from userId: String)
 }
 
@@ -155,8 +155,6 @@ public class WebRTCConnection: NSObject {
     fileprivate func createDataChannel() {
         let dataChannelConfig = RTCDataChannelConfiguration()
         dataChannelConfig.isOrdered = true
-        dataChannelConfig.channelId = 12
-        dataChannelConfig.protocol = "WhaleDataChannelProtocol"
 
         datachannel = peerConnection?.dataChannel(
             forLabel: "WhaleDataChannel",
@@ -339,16 +337,28 @@ extension WebRTCConnection: RTCPeerConnectionDelegate {
     public func peerConnection(_ peerConnection: RTCPeerConnection, didOpen dataChannel: RTCDataChannel) {
         print(#function)
         print("DataChannel opened")
-        delegate?.didOpenDataChannel(self)
+        self.datachannel = dataChannel
+        self.datachannel?.delegate = self
     }
 }
 
 extension WebRTCConnection: RTCDataChannelDelegate {
     public func dataChannelDidChangeState(_ dataChannel: RTCDataChannel) {
-        print(#function)
+        switch datachannel!.readyState {
+        case .connecting:
+            print("DataChannel connecting")
+        case .open:
+            print("DataChannel open")
+            delegate?.didOpenDataChannel(self)
+        case .closing:
+            print("DataChannel closing")
+        case .closed:
+            print("DataChannel closed")
+        }
     }
 
     public func dataChannel(_ dataChannel: RTCDataChannel, didReceiveMessageWith buffer: RTCDataBuffer) {
-        delegate?.webRTCConnection(self, didReceiveDataChanelData: buffer.data)
+        print(String(data: buffer.data, encoding: .utf8))
+        delegate?.webRTCConnection(self, didReceiveDataChannelData: buffer.data)
     }
 }
