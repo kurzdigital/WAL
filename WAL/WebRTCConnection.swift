@@ -148,7 +148,6 @@ public class WebRTCConnection: NSObject {
     }
 
     public func disconnect() {
-        print("Call disconnect")
         localCapturer?.stopCapture()
         spreedClient?.disconnect()
         datachannel?.close()
@@ -163,7 +162,9 @@ public class WebRTCConnection: NSObject {
     }
 
     public func send(data: Data) {
-        datachannel?.sendData(RTCDataBuffer(data: data, isBinary: false))
+        datachannel?.sendData(
+            RTCDataBuffer(data: data, isBinary: false)
+        )
     }
 
     fileprivate func createDataChannel() {
@@ -198,14 +199,17 @@ public class WebRTCConnection: NSObject {
                 fatalError()
         }
 
-        let mediaStream = peerConnectionFactory.mediaStream(withStreamId: mediaStreamId)
+        let mediaStream = peerConnectionFactory
+            .mediaStream(withStreamId: mediaStreamId)
         mediaStream.addAudioTrack(audioTrack)
         mediaStream.addVideoTrack(videoTrack)
         peerConnection?.add(mediaStream)
         localAudioTrack = audioTrack
         delegate?.webRTCConnection(self, didReceiveLocalAudioTrack: audioTrack)
 
-        let format = RTCCameraVideoCapturer.format(for: device, constraints: config.formatConstraints)
+        let format = RTCCameraVideoCapturer.format(
+            for: device,
+            constraints: config.formatConstraints)
         localCapturer?.startCapture(
             with: device,
             format: format,
