@@ -24,7 +24,7 @@ Run `pod install`
 
 ## Signaling Server
 
-As you may now you will need some kind of signaling to create a WebRTC connection. 
+As you may know you will need some kind of signaling to create a WebRTC connection. 
 This lib uses a signaling server called [Spreed](https://github.com/strukturag/spreed-webrtc).
 Fortunately they provide a docker image for their webservice which you can start the following way:
 ```

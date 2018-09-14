@@ -17,7 +17,7 @@ Pod::Spec.new do |s|
   s.xcconfig = { "ENABLE_BITCODE" => "NO" } 
   s.social_media_url   = "https://twitter.com/kurzdigital"
   s.platform     = :ios, "10.0"
-  s.source       = { :git => "https://github.com/kurzdigital/WAL", :tag => s.version.to_s}
+  s.source       = { :git => "https://github.com/kurzdigital/WAL.git", :tag => s.version.to_s}
 
   s.source_files = "WAL/**/*"
   s.requires_arc = true

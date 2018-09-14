@@ -100,6 +100,9 @@ public class WebRTCConnection: NSObject {
     public func connect(toUserId userId: String) {
         partnerId = userId
         createDataChannel()
+        // mandatorySdpConstraints =
+        // ["OfferToReceiveAudio": "true",
+        // "OfferToReceiveVideo": "true"]
         peerConnection?.offer(
         for: mandatorySdpConstraints) { sessionDescription, error in
             if let error = error {
@@ -263,6 +266,10 @@ extension WebRTCConnection: SpreedClientDelegate {
     func spreedClient(_ sender: SpreedClient, didReceiveCandidate candidate: RTCIceCandidate, from userId: String) {
         peerConnection?.add(candidate)
     }
+}
+
+extension WebRTCConnection {
+
 }
 
 extension WebRTCConnection: RTCPeerConnectionDelegate {
