@@ -43,6 +43,18 @@ services:
 ```
 Then you can just run `docker-compose up`
 
+## TURN Server
+
+If you want to connect calls through differnet networks you will have to use a STUN/TURN server. I suggest to use the [coturn server](https://github.com/coturn/coturn) for this purpose.
+
+Run this turnserver with:
+
+```
+turnserver --user user:pass -f -v -n -a -r option
+```
+
+Please ensure that the port 3478 is open for udp and tcp traffic.
+
 ## Usage
 
 ```
