@@ -8,16 +8,16 @@
 
 Pod::Spec.new do |s|
   s.name         = "WAL"
-  s.version      = "0.0.1"
+  s.version      = "0.1.0"
   s.summary      = "WebRTC Abstraction Layer"
   s.description  = "Easy use of WebRTC to build a VoIP app"
   s.homepage     = "https://kurzdigital.com"
   s.license = { :type => 'BSD'} 
   s.author             = { "Christian Braun" => "christian.braun@kurzdigital.com" }
   s.xcconfig = { "ENABLE_BITCODE" => "NO" } 
-  s.social_media_url   = "http://twitter.com/NorbiBraun"
+  s.social_media_url   = "https://twitter.com/kurzdigital"
   s.platform     = :ios, "10.0"
-  s.source       = { :git => "https://git.kurzdigital.com/cbr/WAL", :tag => s.version.to_s}
+  s.source       = { :git => "https://github.com/kurzdigital/WAL", :tag => s.version.to_s}
 
   s.source_files = "WAL/**/*"
   s.requires_arc = true
